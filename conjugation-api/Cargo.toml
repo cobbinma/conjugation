@@ -11,3 +11,4 @@ juniper = "0.15.11"
 lazy_static = "1.4.0"
 tide = "0.16.0"
 sqlx = { version = "0.7", features = [ "runtime-async-std-native-tls", "sqlite",  ] }
+http-types = "2.12.0"

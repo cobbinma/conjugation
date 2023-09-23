@@ -1,0 +1,34 @@
+schema {
+  query: QueryRoot
+}
+type QueryRoot {
+  "get a verb"
+  conjugatedVerb(infinitive: String!, tense: Tense!): ConjugatedVerb
+}
+type ConjugatedVerb {
+  "Infinitive form of the verb"
+  infinitive: String!
+  "English form of the verb"
+  verbEnglish: String!
+  "Tense the verb has been conjugated"
+  tense: Tense!
+  "First person singular"
+  yo: String!
+  "Second person singular"
+  tu: String!
+  "Third person singular"
+  el: String!
+  "First person plural"
+  nosotros: String!
+  "Second person plural"
+  vosotros: String!
+  "Third person plural"
+  ellos: String!
+}
+enum Tense {
+  PRESENTE
+  PRETERITO
+  IMPERFECTO
+  FUTURO
+}
+
