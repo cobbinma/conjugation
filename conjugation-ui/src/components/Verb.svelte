@@ -5,6 +5,7 @@
 	import type { Tense, QueryRootConjugatedVerbArgs, QueryRoot } from '../generated/graphql';
 	import Game from './Game.svelte';
 	import Table from './Table.svelte';
+	import Error from './Error.svelte';
 
 	export let infinitive: string;
 	export let tense: Tense;
@@ -71,8 +72,8 @@
 	{:else if result.loading}
 		<span class="loading loading-spinner loading-lg" />
 	{:else if result.error}
-		{result.error}
+		<Error />
 	{/if}
-{:catch error}
-	<p class="error">{error}</p>
+{:catch}
+	<Error />
 {/await}
