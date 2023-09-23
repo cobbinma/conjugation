@@ -11,28 +11,27 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<section>
-	<form method="GET" action="/verb/{infinitive}/{selected}">
-		<input bind:value={infinitive} />
-		<select bind:value={selected}>
-			{#each [UNSELECTED, ...Object.keys(Tense)] as tense}
-				<option value={tense}>
-					{tense}
-				</option>
-			{/each}
-		</select>
-		{#if infinitive !== '' && selected !== UNSELECTED}
-			<div><button>Go</button></div>
-		{/if}
-	</form>
-</section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-</style>
+<div class="flex grow space-y-8 justify-center">
+	<section>
+		<form method="GET" action="/verb/{infinitive}/{selected}">
+			<div>
+				<input
+					placeholder="Type your verb"
+					class="input select-primary w-full max-w-xs"
+					bind:value={infinitive}
+				/>
+				<select class="select select-primary w-full max-w-xs" bind:value={selected}>
+					<option disabled selected>Choose a tense</option>
+					{#each Object.keys(Tense) as tense}
+						<option value={tense}>
+							{tense}
+						</option>
+					{/each}
+				</select>
+				{#if infinitive !== '' && selected !== UNSELECTED}
+					<div><button class="btn btn-primary">Go</button></div>
+				{/if}
+			</div>
+		</form>
+	</section>
+</div>

@@ -14,6 +14,11 @@
 	const tense = Tense[$page.data.tense as keyof typeof Tense];
 </script>
 
-<div class="text-column">
+<svelte:head>
+	<title>Practise</title>
+	<meta name="description" content="practise conjugating verbs" />
+</svelte:head>
+
+<div class="prose h-2/3">
 	<Verb infinitive={$page.data.infinitive} {tense} />
 </div>

@@ -33,17 +33,14 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Verb</title>
-	<meta name="description" content="About this app" />
-</svelte:head>
-
 {#await $verb}
-	Loading..
+	<span class="loading loading-spinner loading-lg" />
 {:then result}
 	{#if result.data?.conjugatedVerb}
 		<div class="text-column">
 			<h1>{result.data.conjugatedVerb.infinitive}</h1>
+
+			<h2>{result.data.conjugatedVerb.tense.toLowerCase()}</h2>
 
 			<p>
 				{result.data.conjugatedVerb.verbEnglish}
@@ -54,19 +51,25 @@
 			{/if}
 
 			{#if !playing}
-				<button on:click={() => (playing = true)}>Practise</button>
+				<button class="btn modal-button btn-secondary" on:click={() => (playing = true)}
+					>Practise</button
+				>
 			{:else}
-				<Game
-					verb={result.data.conjugatedVerb}
-					close={() => {
-						playing = false;
-						played = true;
-					}}
-				/>
+				<div class="modal" class:modal-open={playing}>
+					<div class="modal-box">
+						<Game
+							verb={result.data.conjugatedVerb}
+							close={() => {
+								playing = false;
+								played = true;
+							}}
+						/>
+					</div>
+				</div>
 			{/if}
 		</div>
 	{:else if result.loading}
-		Loading..
+		<span class="loading loading-spinner loading-lg" />
 	{:else if result.error}
 		{result.error}
 	{/if}

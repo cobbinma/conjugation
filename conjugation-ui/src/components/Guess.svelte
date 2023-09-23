@@ -26,12 +26,18 @@
 </script>
 
 <div>
-	<h2>{tense.toString()}</h2>
+	<h2>{tense.toString().toLowerCase()}</h2>
 	<h3>{pronoun} ({infinitive})</h3>
 	<div>
 		<form on:submit|preventDefault={check}>
-			<input bind:value={guess} use:focus />
-			<button>Check</button>
+			<input
+				type="text"
+				placeholder="Type here"
+				class="input select-secondary w-full max-w-xs"
+				bind:value={guess}
+				use:focus
+			/>
+			<button class="btn btn-secondary">Check</button>
 		</form>
 	</div>
 	<p>Enter your answer above. "{pronoun} ____"</p>
