@@ -2,4 +2,6 @@
 
 game for learning how to conjugate spanish verbs 🇪🇸
 
-![](./docs/screenshot.png)
+<br />
+
+<img src="./docs/screenshot.png" alt="screenshot" width="200"/>
