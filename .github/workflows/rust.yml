@@ -5,6 +5,7 @@ name: Continuous integration
 jobs:
   check:
     name: Check
+    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,6 +20,7 @@ jobs:
 
   test:
     name: Test Suite
+    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -33,6 +35,7 @@ jobs:
 
   fmt:
     name: Rustfmt
+    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -49,6 +52,7 @@ jobs:
 
   clippy:
     name: Clippy
+    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
