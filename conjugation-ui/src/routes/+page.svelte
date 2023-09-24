@@ -13,7 +13,7 @@
 
 <div class="flex grow space-y-8 justify-center">
 	<section>
-		<form method="GET" action="/verb/{infinitive}/{selected}">
+		<form method="GET" action="/practise/{infinitive}/{selected}">
 			<div>
 				<input
 					placeholder="Type your verb"
