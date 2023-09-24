@@ -1,5 +1,4 @@
 import { Tense, type QueryRootConjugatedVerbArgs } from '../../../../generated/graphql';
-import { PUBLIC_API_ENDPOINT_URL } from '$env/static/public';
 import axios from 'axios';
 
 /** @type {import('./$types').PageServerLoad} */
@@ -12,9 +11,9 @@ export async function load({ params }) {
 			tense
 		};
 
-		console.log(PUBLIC_API_ENDPOINT_URL);
+		console.log(process.env.PUBLIC_API_ENDPOINT_URL);
 
-		const response = await axios.post(PUBLIC_API_ENDPOINT_URL, {
+		const response = await axios.post(process.env.PUBLIC_API_ENDPOINT_URL || '', {
 			query: `
 		query GetVerb($infinitive: String!, $tense: Tense!) {
 			conjugatedVerb(infinitive: $infinitive, tense: $tense) {
