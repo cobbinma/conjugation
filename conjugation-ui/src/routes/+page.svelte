@@ -20,7 +20,7 @@
 					class="input select-primary w-full"
 					bind:value={infinitive}
 				/>
-				<select class="select select-primary w-full" bind:value={selected}>
+				<select class="select select-primary w-full mt-1" bind:value={selected}>
 					<option disabled selected>Choose a tense</option>
 					{#each Object.keys(Tense) as tense}
 						<option value={tense}>
@@ -29,9 +29,14 @@
 					{/each}
 				</select>
 				{#if infinitive !== '' && selected !== UNSELECTED}
-					<div><button class="btn btn-primary">Go</button></div>
+					<div><button class="btn btn-primary mt-1">Go</button></div>
 				{/if}
 			</div>
 		</form>
+		<div class="mt-5">
+			<form method="GET" action="/practise/random">
+				<button class="btn btn-secondary">Random</button>
+			</form>
+		</div>
 	</section>
 </div>

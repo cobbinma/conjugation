@@ -2,8 +2,10 @@ schema {
   query: QueryRoot
 }
 type QueryRoot {
-  "get a verb"
-  conjugatedVerb(infinitive: String!, tense: Tense!): ConjugatedVerb
+  "search for a verb"
+  searchVerb(infinitive: String!, tense: Tense!): ConjugatedVerb
+  "get a random verb"
+  randomVerb: ConjugatedVerb
 }
 type ConjugatedVerb {
   "Infinitive form of the verb"

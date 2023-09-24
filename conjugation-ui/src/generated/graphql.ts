@@ -38,12 +38,14 @@ export type ConjugatedVerb = {
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';
-  /** get a verb */
-  conjugatedVerb?: Maybe<ConjugatedVerb>;
+  /** get a random verb */
+  randomVerb?: Maybe<ConjugatedVerb>;
+  /** search for a verb */
+  searchVerb?: Maybe<ConjugatedVerb>;
 };
 
 
-export type QueryRootConjugatedVerbArgs = {
+export type QueryRootSearchVerbArgs = {
   infinitive: Scalars['String']['input'];
   tense: Tense;
 };

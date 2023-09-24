@@ -152,16 +152,25 @@ pub struct QueryRoot;
 
 #[juniper::graphql_object(context = State)]
 impl QueryRoot {
-    #[graphql(description = "get a verb")]
-    async fn conjugated_verb(
+    #[graphql(description = "search for a verb")]
+    async fn search_verb(
         context: &State,
         infinitive: String,
         tense: Tense,
     ) -> Option<ConjugatedVerb> {
-        sqlx::query_as::<_, Verb>("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE infinitive = ? AND tense = ? AND mood = ?").
+        sqlx::query_as::<_, Verb>("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE infinitive = ? AND tense = ? AND mood = 'Indicativo'").
             bind(infinitive).
             bind(tense.to_string()).
             bind("Indicativo").
+            fetch_optional(&context.pool).
+            await.
+            unwrap_or_default().
+            map(ConjugatedVerb::from)
+    }
+
+    #[graphql(description = "get a random verb")]
+    async fn random_verb(context: &State) -> Option<ConjugatedVerb> {
+        sqlx::query_as::<_, Verb>("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE tense IN ('Presente', 'Pretérito', 'Imperfecto', 'Futuro') AND mood = 'Indicativo' ORDER BY RANDOM() LIMIT 1").
             fetch_optional(&context.pool).
             await.
             unwrap_or_default().
