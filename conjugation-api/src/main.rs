@@ -199,24 +199,9 @@ async fn handle_graphiql(_: Request<State>) -> tide::Result<impl Into<Response>>
 async fn main() -> std::io::Result<()> {
     let db = SqlitePool::connect(DB_URL).await.unwrap();
     let mut app = Server::with_state(State { pool: db });
-    app.with(
-        tide::security::CorsMiddleware::new()
-            .allow_methods(
-                "GET, PUT, POST, DELETE, HEAD, OPTIONS"
-                    .parse::<http_types::headers::HeaderValue>()
-                    .unwrap(),
-            )
-            .allow_origin(tide::security::Origin::from("http://localhost:5173"))
-            .allow_headers(
-                "Authorization, Accept, Content-Type"
-                    .parse::<http_types::headers::HeaderValue>()
-                    .unwrap(),
-            )
-            .allow_credentials(true),
-    );
     app.at("/").get(Redirect::permanent("/graphiql"));
     app.at("/graphql").post(handle_graphql);
     app.at("/graphiql").get(handle_graphiql);
-    app.listen("0.0.0.0:8080").await?;
+    app.listen("[::]:8080").await?;
     Ok(())
 }
