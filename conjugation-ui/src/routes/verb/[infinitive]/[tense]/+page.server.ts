@@ -7,7 +7,7 @@ export async function load({ params }) {
 
 	try {
 		const variables: QueryRootConjugatedVerbArgs = {
-			infinitive: params.infinitive,
+			infinitive: params.infinitive?.trim()?.toLowerCase() || '',
 			tense
 		};
 
@@ -32,7 +32,7 @@ export async function load({ params }) {
 			variables
 		});
 
-		return response.data.data.conjugatedVerb;
+		return { verb: response?.data?.data?.conjugatedVerb };
 	} catch (error) {
 		console.error(`Error in load function for /: ${error}`);
 	}

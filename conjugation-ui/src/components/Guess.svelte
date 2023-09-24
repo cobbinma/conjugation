@@ -13,7 +13,7 @@
 	const normalize = (input: string) => input.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 	const check = () => {
-		if (normalize(guess) === normalize(answer)) {
+		if (normalize(guess).toLowerCase().trim() === normalize(answer).toLowerCase().trim()) {
 			correct();
 		}
 

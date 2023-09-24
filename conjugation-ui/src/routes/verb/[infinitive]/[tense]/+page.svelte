@@ -3,7 +3,7 @@
 	import type { ConjugatedVerb } from '../../../../generated/graphql';
 
 	/** @type {import('./$types').PageData} */
-	export let data: ConjugatedVerb;
+	export let data: { verb: ConjugatedVerb | undefined };
 </script>
 
 <svelte:head>
@@ -11,6 +11,10 @@
 	<meta name="description" content="practise conjugating verbs" />
 </svelte:head>
 
-<div class="prose h-2/3">
-	<Verb verb={data} />
-</div>
+{#if data.verb}
+	<div class="prose h-2/3">
+		<Verb verb={data.verb} />
+	</div>
+{:else}
+	<div><h2>verb not found...</h2></div>
+{/if}
