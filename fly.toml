@@ -6,6 +6,9 @@
 app = "spanish"
 primary_region = "lhr"
 
+[env]
+  PUBLIC_API_ENDPOINT_URL = "http://api.process.spanish.internal:8080/graphql"
+
 [processes]
   api = "./app/api/conjugation-api"
   ui = "node ./ui/build/"
