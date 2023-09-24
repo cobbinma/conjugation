@@ -23,7 +23,7 @@
 			infinitive={verb.infinitive}
 			answer={verb.yo}
 			correct={() => score++}
-			done={() => (yo = true)}
+			finish={() => (yo = true)}
 		/>
 	{:else if !tu}
 		<Guess
@@ -32,7 +32,7 @@
 			infinitive={verb.infinitive}
 			answer={verb.tu}
 			correct={() => score++}
-			done={() => (tu = true)}
+			finish={() => (tu = true)}
 		/>
 	{:else if !el}
 		<Guess
@@ -41,7 +41,7 @@
 			infinitive={verb.infinitive}
 			answer={verb.el}
 			correct={() => score++}
-			done={() => (el = true)}
+			finish={() => (el = true)}
 		/>
 	{:else if !nosotros}
 		<Guess
@@ -50,7 +50,7 @@
 			infinitive={verb.infinitive}
 			answer={verb.nosotros}
 			correct={() => score++}
-			done={() => (nosotros = true)}
+			finish={() => (nosotros = true)}
 		/>
 	{:else if !vosotros}
 		<Guess
@@ -59,7 +59,7 @@
 			infinitive={verb.infinitive}
 			answer={verb.vosotros}
 			correct={() => score++}
-			done={() => (vosotros = true)}
+			finish={() => (vosotros = true)}
 		/>
 	{:else if !ellos}
 		<Guess
@@ -68,7 +68,7 @@
 			infinitive={verb.infinitive}
 			answer={verb.ellos}
 			correct={() => score++}
-			done={() => (ellos = true)}
+			finish={() => (ellos = true)}
 		/>
 	{:else}
 		<h3>You scored {+((score / 6) * 100).toFixed(2)}%!</h3>

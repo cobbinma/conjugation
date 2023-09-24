@@ -11,16 +11,16 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<div class="flex grow space-y-8 justify-center">
+<div class="flex justify-center w-full max-w-xs">
 	<section>
 		<form method="GET" action="/practise/{infinitive}/{selected}">
 			<div>
 				<input
 					placeholder="Type your verb"
-					class="input select-primary w-full max-w-xs"
+					class="input select-primary w-full"
 					bind:value={infinitive}
 				/>
-				<select class="select select-primary w-full max-w-xs" bind:value={selected}>
+				<select class="select select-primary w-full" bind:value={selected}>
 					<option disabled selected>Choose a tense</option>
 					{#each Object.keys(Tense) as tense}
 						<option value={tense}>

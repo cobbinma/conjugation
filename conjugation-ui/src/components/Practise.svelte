@@ -27,8 +27,14 @@
 			>Practise</button
 		>
 	{:else}
-		<div class="modal" class:modal-open={playing}>
+		<dialog class="modal sm:modal-middle" class:modal-open={playing}>
 			<div class="modal-box">
+				<form method="dialog">
+					<button
+						class="btn btn-sm btn-circle btn-ghost absolute right-1 top-1 p-0"
+						on:click={() => (playing = false)}>✕</button
+					>
+				</form>
 				<Game
 					{verb}
 					close={() => {
@@ -37,6 +43,6 @@
 					}}
 				/>
 			</div>
-		</div>
+		</dialog>
 	{/if}
 </div>

@@ -6,18 +6,27 @@
 	export let infinitive: string;
 	export let answer: string;
 	export let correct: () => void;
-	export let done: () => void;
+	export let finish: () => void;
 
 	let guess: string;
+
+	let marked: boolean;
+	let tick: boolean;
 
 	const normalize = (input: string) => input.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 	const check = () => {
+		if (marked) {
+			finish();
+			return;
+		}
+
 		if (normalize(guess).toLowerCase().trim() === normalize(answer).toLowerCase().trim()) {
+			tick = true;
 			correct();
 		}
 
-		done();
+		marked = true;
 	};
 
 	function focus(el: HTMLInputElement) {
@@ -37,8 +46,18 @@
 				bind:value={guess}
 				use:focus
 			/>
-			<button class="btn btn-secondary">Check</button>
+			{#if !marked}
+				<button class="btn btn-secondary">Check</button>
+			{:else}
+				<button class="btn btn-primary">Next</button>
+			{/if}
 		</form>
 	</div>
-	<p>Enter your answer above. "{pronoun} ____"</p>
+	{#if !marked}
+		<p>Enter your answer above. "{pronoun} ____"</p>
+	{:else if tick}
+		<p class="text-green-800">Correct! 🎉</p>
+	{:else}
+		<p class="text-rose-600">Unlucky, the answer is <i>{answer}</i></p>
+	{/if}
 </div>

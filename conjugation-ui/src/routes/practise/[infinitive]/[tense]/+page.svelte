@@ -17,4 +17,10 @@
 	</div>
 {:else}
 	<div><h2>verb not found...</h2></div>
+	<button
+		class="btn mt-5 btn-outline btn-error"
+		on:click={() => {
+			window.history.back();
+		}}>Try Again</button
+	>
 {/if}
