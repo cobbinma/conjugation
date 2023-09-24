@@ -8,7 +8,7 @@
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<meta name="description" content="practise spanish 💃" />
 </svelte:head>
 
 <div class="flex justify-center w-full max-w-xs">
