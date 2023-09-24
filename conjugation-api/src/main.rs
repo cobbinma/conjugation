@@ -184,8 +184,6 @@ lazy_static! {
         Schema::new(QueryRoot {}, EmptyMutation::new(), EmptySubscription::new());
 }
 
-// test
-
 async fn handle_graphql(mut request: Request<State>) -> tide::Result {
     let query: GraphQLRequest = request.body_json().await?;
     let response = query.execute(&SCHEMA, request.state()).await;

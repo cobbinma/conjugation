@@ -5,7 +5,6 @@ name: Continuous integration
 jobs:
   check:
     name: Check
-    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,12 +14,12 @@ jobs:
           toolchain: stable
           override: true
       - uses: actions-rs/cargo@v1
+        working-directory: conjugation-api
         with:
           command: check
 
   test:
     name: Test Suite
-    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,12 +29,12 @@ jobs:
           toolchain: stable
           override: true
       - uses: actions-rs/cargo@v1
+        working-directory: conjugation-api
         with:
           command: test
 
   fmt:
     name: Rustfmt
-    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -46,13 +45,13 @@ jobs:
           override: true
       - run: rustup component add rustfmt
       - uses: actions-rs/cargo@v1
+        working-directory: conjugation-api
         with:
           command: fmt
           args: --all -- --check
 
   clippy:
     name: Clippy
-    working-directory: conjugation-api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,6 +62,7 @@ jobs:
           override: true
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
+        working-directory: conjugation-api
         with:
           command: clippy
           args: -- -D warnings
