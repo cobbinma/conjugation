@@ -2,9 +2,13 @@ on: [push, pull_request]
 
 name: UI CI
 
+jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: conjugation-ui
     steps:
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
