@@ -11,11 +11,13 @@
 
 <div class="text-column">
 	<h1>{verb.infinitive}</h1>
-	<p>
-		{verb.verbEnglish}
-	</p>
+	{#if verb.verbEnglish}
+		<p>
+			{verb.verbEnglish}
+		</p>
+	{/if}
 
-	<h2>{verb.tense.toLowerCase()}</h2>
+	<h2>{verb.tense.toLowerCase().replaceAll('_', ' ')}</h2>
 
 	{#if played && !playing}
 		<Table {verb} />

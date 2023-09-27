@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use juniper::{http::graphiql, http::GraphQLRequest, EmptyMutation, EmptySubscription, RootNode};
 use lazy_static::lazy_static;
-use sqlx::{FromRow, SqlitePool};
+use sqlx::{FromRow, QueryBuilder, Sqlite, SqlitePool};
 use tide::{http::mime, Body, Redirect, Request, Response, Server, StatusCode};
 
 const DB_URL: &str = "sqlite://data/verbs.db";
@@ -13,6 +13,7 @@ enum Tense {
     Preterito,
     Imperfecto,
     Futuro,
+    PresentePerfecto,
 }
 
 impl Display for Tense {
@@ -22,6 +23,7 @@ impl Display for Tense {
             Tense::Preterito => write!(f, "Pretérito"),
             Tense::Imperfecto => write!(f, "Imperfecto"),
             Tense::Futuro => write!(f, "Futuro"),
+            Tense::PresentePerfecto => write!(f, "Presente perfecto"),
         }
     }
 }
@@ -35,6 +37,7 @@ impl FromStr for Tense {
             "Pretérito" => Ok(Self::Preterito),
             "Imperfecto" => Ok(Self::Imperfecto),
             "Futuro" => Ok(Self::Futuro),
+            "Presente perfecto" => Ok(Self::PresentePerfecto),
             _ => Err(()),
         }
     }
@@ -43,14 +46,14 @@ impl FromStr for Tense {
 #[derive(Clone)]
 struct ConjugatedVerb {
     infinitive: String,
-    verb_english: String,
+    verb_english: Option<String>,
     tense: Tense,
-    yo: String,
-    tu: String,
-    el: String,
-    nosotros: String,
-    vosotros: String,
-    ellos: String,
+    yo: Option<String>,
+    tu: Option<String>,
+    el: Option<String>,
+    nosotros: Option<String>,
+    vosotros: Option<String>,
+    ellos: Option<String>,
 }
 
 impl From<Verb> for ConjugatedVerb {
@@ -84,13 +87,13 @@ impl From<Verb> for ConjugatedVerb {
 struct Verb {
     infinitive: String,
     tense: String,
-    verb_english: String,
-    form_1s: String,
-    form_2s: String,
-    form_3s: String,
-    form_1p: String,
-    form_2p: String,
-    form_3p: String,
+    verb_english: Option<String>,
+    form_1s: Option<String>,
+    form_2s: Option<String>,
+    form_3s: Option<String>,
+    form_1p: Option<String>,
+    form_2p: Option<String>,
+    form_3p: Option<String>,
 }
 
 #[juniper::graphql_object]
@@ -102,7 +105,7 @@ impl ConjugatedVerb {
     }
 
     #[graphql(description = "English form of the verb")]
-    fn verb_english(&self) -> &str {
+    fn verb_english(&self) -> &Option<String> {
         &self.verb_english
     }
 
@@ -112,32 +115,32 @@ impl ConjugatedVerb {
     }
 
     #[graphql(description = "First person singular")]
-    fn yo(&self) -> &str {
+    fn yo(&self) -> &Option<String> {
         &self.yo
     }
 
     #[graphql(description = "Second person singular")]
-    fn tu(&self) -> &str {
+    fn tu(&self) -> &Option<String> {
         &self.tu
     }
 
     #[graphql(description = "Third person singular")]
-    fn el(&self) -> &str {
+    fn el(&self) -> &Option<String> {
         &self.el
     }
 
     #[graphql(description = "First person plural")]
-    fn nosotros(&self) -> &str {
+    fn nosotros(&self) -> &Option<String> {
         &self.nosotros
     }
 
     #[graphql(description = "Second person plural")]
-    fn vosotros(&self) -> &str {
+    fn vosotros(&self) -> &Option<String> {
         &self.vosotros
     }
 
     #[graphql(description = "Third person plural")]
-    fn ellos(&self) -> &str {
+    fn ellos(&self) -> &Option<String> {
         &self.ellos
     }
 }
@@ -152,29 +155,47 @@ pub struct QueryRoot;
 
 #[juniper::graphql_object(context = State)]
 impl QueryRoot {
-    #[graphql(description = "search for a verb")]
-    async fn search_verb(
+    #[graphql(description = "get a verb")]
+    async fn verb(
         context: &State,
-        infinitive: String,
-        tense: Tense,
+        infinitive: Option<String>,
+        tenses: Option<Vec<Tense>>,
     ) -> Option<ConjugatedVerb> {
-        sqlx::query_as::<_, Verb>("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE infinitive = ? AND tense = ? AND mood = 'Indicativo'").
-            bind(infinitive).
-            bind(tense.to_string()).
-            bind("Indicativo").
-            fetch_optional(&context.pool).
-            await.
-            unwrap_or_default().
-            map(ConjugatedVerb::from)
-    }
+        let mut query_builder: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE  mood = 'Indicativo'");
 
-    #[graphql(description = "get a random verb")]
-    async fn random_verb(context: &State) -> Option<ConjugatedVerb> {
-        sqlx::query_as::<_, Verb>("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE tense IN ('Presente', 'Pretérito', 'Imperfecto', 'Futuro') AND mood = 'Indicativo' ORDER BY RANDOM() LIMIT 1").
-            fetch_optional(&context.pool).
-            await.
-            unwrap_or_default().
-            map(ConjugatedVerb::from)
+        if let Some(infinitive) = infinitive {
+            query_builder.push(" AND infinitive = ");
+            query_builder.push_bind(infinitive);
+        };
+
+        let tenses = match tenses {
+            Some(tenses) if !tenses.is_empty() => tenses,
+            _ => vec![
+                Tense::Presente,
+                Tense::Imperfecto,
+                Tense::Preterito,
+                Tense::Futuro,
+                Tense::PresentePerfecto,
+            ],
+        };
+
+        query_builder.push(" AND tense IN (");
+        let mut separated = query_builder.separated(", ");
+        for tense in tenses.iter() {
+            separated.push_bind(tense.to_string());
+        }
+        separated.push_unseparated(")");
+
+        query_builder.push(" ORDER BY RANDOM() LIMIT 1");
+
+        let query = query_builder.build_query_as::<Verb>();
+
+        query
+            .fetch_optional(&context.pool)
+            .await
+            .unwrap_or_default()
+            .map(ConjugatedVerb::from)
     }
 }
 

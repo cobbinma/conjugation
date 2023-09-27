@@ -2,35 +2,34 @@ schema {
   query: QueryRoot
 }
 type QueryRoot {
-  "search for a verb"
-  searchVerb(infinitive: String!, tense: Tense!): ConjugatedVerb
-  "get a random verb"
-  randomVerb: ConjugatedVerb
+  "get a verb"
+  verb(infinitive: String, tenses: [Tense!]): ConjugatedVerb
 }
 type ConjugatedVerb {
   "Infinitive form of the verb"
   infinitive: String!
   "English form of the verb"
-  verbEnglish: String!
+  verbEnglish: String
   "Tense the verb has been conjugated"
   tense: Tense!
   "First person singular"
-  yo: String!
+  yo: String
   "Second person singular"
-  tu: String!
+  tu: String
   "Third person singular"
-  el: String!
+  el: String
   "First person plural"
-  nosotros: String!
+  nosotros: String
   "Second person plural"
-  vosotros: String!
+  vosotros: String
   "Third person plural"
-  ellos: String!
+  ellos: String
 }
 enum Tense {
   PRESENTE
   PRETERITO
   IMPERFECTO
   FUTURO
+  PRESENTE_PERFECTO
 }
 

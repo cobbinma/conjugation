@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { Tense } from '../generated/graphql';
 
-	let infinitive: string;
+	let infinitive: string | undefined;
 	let selected: string | undefined;
 	const UNSELECTED = '';
+	const UNSELECTED_TENSE = 'Choose a tense';
 </script>
 
 <svelte:head>
@@ -13,7 +14,13 @@
 
 <div class="flex justify-center w-full max-w-xs">
 	<section>
-		<form method="GET" action="/practise/{infinitive}/{selected}">
+		<form method="GET" action="/verb">
+			{#if infinitive}
+				<input type="hidden" name="infinitive" value={infinitive} />
+			{/if}
+			{#if selected && selected !== UNSELECTED_TENSE}
+				<input type="hidden" name="tense" value={selected} />
+			{/if}
 			<div>
 				<input
 					placeholder="Type your verb"
@@ -21,10 +28,10 @@
 					bind:value={infinitive}
 				/>
 				<select class="select select-primary w-full mt-1" bind:value={selected}>
-					<option disabled selected>Choose a tense</option>
+					<option disabled selected>{UNSELECTED_TENSE}</option>
 					{#each Object.keys(Tense) as tense}
 						<option value={tense}>
-							{tense}
+							{tense.replace(/([A-Z][a-z])/g, ' $1')}
 						</option>
 					{/each}
 				</select>
@@ -34,7 +41,7 @@
 			</div>
 		</form>
 		<div class="mt-5">
-			<form method="GET" action="/practise/random">
+			<form method="GET" action="/verb">
 				<button class="btn btn-secondary">Random</button>
 			</form>
 		</div>
