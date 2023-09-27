@@ -16,25 +16,32 @@ export type Scalars = {
 
 export type ConjugatedVerb = {
   __typename?: 'ConjugatedVerb';
-  /** Third person singular */
-  el?: Maybe<Scalars['String']['output']>;
-  /** Third person plural */
-  ellos?: Maybe<Scalars['String']['output']>;
+  /** First person singular */
+  conjugations: Array<Conjugation>;
   /** Infinitive form of the verb */
   infinitive: Scalars['String']['output'];
-  /** First person plural */
-  nosotros?: Maybe<Scalars['String']['output']>;
   /** Tense the verb has been conjugated */
   tense: Tense;
-  /** Second person singular */
-  tu?: Maybe<Scalars['String']['output']>;
   /** English form of the verb */
   verbEnglish?: Maybe<Scalars['String']['output']>;
-  /** Second person plural */
-  vosotros?: Maybe<Scalars['String']['output']>;
-  /** First person singular */
-  yo?: Maybe<Scalars['String']['output']>;
 };
+
+export type Conjugation = {
+  __typename?: 'Conjugation';
+  /** Pronoun used for the conjugation */
+  pronoun: Pronoun;
+  /** Conjugated verb in spanish */
+  spanish: Scalars['String']['output'];
+};
+
+export enum Pronoun {
+  El = 'EL',
+  Ellos = 'ELLOS',
+  Nosotros = 'NOSOTROS',
+  Tu = 'TU',
+  Vosotros = 'VOSOTROS',
+  Yo = 'YO'
+}
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';

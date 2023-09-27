@@ -5,6 +5,12 @@ type QueryRoot {
   "get a verb"
   verb(infinitive: String, tenses: [Tense!]): ConjugatedVerb
 }
+type Conjugation {
+  "Pronoun used for the conjugation"
+  pronoun: Pronoun!
+  "Conjugated verb in spanish"
+  spanish: String!
+}
 type ConjugatedVerb {
   "Infinitive form of the verb"
   infinitive: String!
@@ -13,17 +19,15 @@ type ConjugatedVerb {
   "Tense the verb has been conjugated"
   tense: Tense!
   "First person singular"
-  yo: String
-  "Second person singular"
-  tu: String
-  "Third person singular"
-  el: String
-  "First person plural"
-  nosotros: String
-  "Second person plural"
-  vosotros: String
-  "Third person plural"
-  ellos: String
+  conjugations: [Conjugation!]!
+}
+enum Pronoun {
+  YO
+  TU
+  EL
+  NOSOTROS
+  VOSOTROS
+  ELLOS
 }
 enum Tense {
   PRESENTE

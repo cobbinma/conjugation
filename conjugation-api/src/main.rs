@@ -43,17 +43,42 @@ impl FromStr for Tense {
     }
 }
 
+#[derive(Clone, juniper::GraphQLEnum)]
+enum Pronoun {
+    Yo,
+    Tu,
+    El,
+    Nosotros,
+    Vosotros,
+    Ellos,
+}
+
+#[derive(Clone)]
+struct Conjugation {
+    pronoun: Pronoun,
+    spanish: String,
+}
+
+#[juniper::graphql_object]
+#[graphql(description = "Conjugated forms of a verb")]
+impl Conjugation {
+    #[graphql(description = "Pronoun used for the conjugation")]
+    fn pronoun(&self) -> &Pronoun {
+        &self.pronoun
+    }
+
+    #[graphql(description = "Conjugated verb in spanish")]
+    fn spanish(&self) -> &str {
+        &self.spanish
+    }
+}
+
 #[derive(Clone)]
 struct ConjugatedVerb {
     infinitive: String,
     verb_english: Option<String>,
     tense: Tense,
-    yo: Option<String>,
-    tu: Option<String>,
-    el: Option<String>,
-    nosotros: Option<String>,
-    vosotros: Option<String>,
-    ellos: Option<String>,
+    conjugations: Vec<Conjugation>,
 }
 
 impl From<Verb> for ConjugatedVerb {
@@ -69,16 +94,50 @@ impl From<Verb> for ConjugatedVerb {
             form_2p,
             form_3p,
         } = value;
+
+        let mut conjugations = vec![];
+        if let Some(spanish) = form_1s {
+            conjugations.push(Conjugation {
+                pronoun: Pronoun::Yo,
+                spanish,
+            })
+        }
+        if let Some(spanish) = form_2s {
+            conjugations.push(Conjugation {
+                pronoun: Pronoun::Tu,
+                spanish,
+            })
+        }
+        if let Some(spanish) = form_3s {
+            conjugations.push(Conjugation {
+                pronoun: Pronoun::El,
+                spanish,
+            })
+        }
+        if let Some(spanish) = form_1p {
+            conjugations.push(Conjugation {
+                pronoun: Pronoun::Nosotros,
+                spanish,
+            })
+        }
+        if let Some(spanish) = form_2p {
+            conjugations.push(Conjugation {
+                pronoun: Pronoun::Vosotros,
+                spanish,
+            })
+        }
+        if let Some(spanish) = form_3p {
+            conjugations.push(Conjugation {
+                pronoun: Pronoun::Ellos,
+                spanish,
+            })
+        }
+
         Self {
             infinitive,
             verb_english,
             tense: Tense::from_str(tense.as_str()).unwrap_or(Tense::Presente),
-            yo: form_1s,
-            tu: form_2s,
-            el: form_3s,
-            nosotros: form_1p,
-            vosotros: form_2p,
-            ellos: form_3p,
+            conjugations,
         }
     }
 }
@@ -115,33 +174,8 @@ impl ConjugatedVerb {
     }
 
     #[graphql(description = "First person singular")]
-    fn yo(&self) -> &Option<String> {
-        &self.yo
-    }
-
-    #[graphql(description = "Second person singular")]
-    fn tu(&self) -> &Option<String> {
-        &self.tu
-    }
-
-    #[graphql(description = "Third person singular")]
-    fn el(&self) -> &Option<String> {
-        &self.el
-    }
-
-    #[graphql(description = "First person plural")]
-    fn nosotros(&self) -> &Option<String> {
-        &self.nosotros
-    }
-
-    #[graphql(description = "Second person plural")]
-    fn vosotros(&self) -> &Option<String> {
-        &self.vosotros
-    }
-
-    #[graphql(description = "Third person plural")]
-    fn ellos(&self) -> &Option<String> {
-        &self.ellos
+    fn conjugations(&self) -> &Vec<Conjugation> {
+        &self.conjugations
     }
 }
 

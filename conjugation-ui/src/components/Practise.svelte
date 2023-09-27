@@ -20,7 +20,7 @@
 	<h2>{verb.tense.toLowerCase().replaceAll('_', ' ')}</h2>
 
 	{#if played && !playing}
-		<Table {verb} />
+		<Table conjugations={verb.conjugations} />
 	{/if}
 
 	{#if !playing}

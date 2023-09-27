@@ -19,12 +19,10 @@ export async function load({ url }) {
 				tense
 				infinitive
 				verbEnglish
-				yo
-				tu
-				el
-				nosotros
-				vosotros
-				ellos
+				conjugations {
+					pronoun
+					spanish
+				}
 			}
 		}
 	`,
