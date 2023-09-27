@@ -16,43 +16,49 @@ export type Scalars = {
 
 export type ConjugatedVerb = {
   __typename?: 'ConjugatedVerb';
-  /** Third person singular */
-  el: Scalars['String']['output'];
-  /** Third person plural */
-  ellos: Scalars['String']['output'];
+  /** First person singular */
+  conjugations: Array<Conjugation>;
   /** Infinitive form of the verb */
   infinitive: Scalars['String']['output'];
-  /** First person plural */
-  nosotros: Scalars['String']['output'];
   /** Tense the verb has been conjugated */
   tense: Tense;
-  /** Second person singular */
-  tu: Scalars['String']['output'];
   /** English form of the verb */
-  verbEnglish: Scalars['String']['output'];
-  /** Second person plural */
-  vosotros: Scalars['String']['output'];
-  /** First person singular */
-  yo: Scalars['String']['output'];
+  verbEnglish?: Maybe<Scalars['String']['output']>;
 };
+
+export type Conjugation = {
+  __typename?: 'Conjugation';
+  /** Pronoun used for the conjugation */
+  pronoun: Pronoun;
+  /** Conjugated verb in spanish */
+  spanish: Scalars['String']['output'];
+};
+
+export enum Pronoun {
+  El = 'EL',
+  Ellos = 'ELLOS',
+  Nosotros = 'NOSOTROS',
+  Tu = 'TU',
+  Vosotros = 'VOSOTROS',
+  Yo = 'YO'
+}
 
 export type QueryRoot = {
   __typename?: 'QueryRoot';
-  /** get a random verb */
-  randomVerb?: Maybe<ConjugatedVerb>;
-  /** search for a verb */
-  searchVerb?: Maybe<ConjugatedVerb>;
+  /** get a verb */
+  verb?: Maybe<ConjugatedVerb>;
 };
 
 
-export type QueryRootSearchVerbArgs = {
-  infinitive: Scalars['String']['input'];
-  tense: Tense;
+export type QueryRootVerbArgs = {
+  infinitive?: InputMaybe<Scalars['String']['input']>;
+  tenses?: InputMaybe<Array<Tense>>;
 };
 
 export enum Tense {
   Futuro = 'FUTURO',
   Imperfecto = 'IMPERFECTO',
   Presente = 'PRESENTE',
+  PresentePerfecto = 'PRESENTE_PERFECTO',
   Preterito = 'PRETERITO'
 }

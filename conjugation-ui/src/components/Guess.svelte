@@ -35,7 +35,7 @@
 </script>
 
 <div>
-	<h2>{tense.toString().toLowerCase()}</h2>
+	<h2>{tense.toString().toLowerCase().replaceAll('_', ' ')}</h2>
 	<h3>{pronoun} ({infinitive})</h3>
 	<div>
 		<form on:submit|preventDefault={check}>

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { ConjugatedVerb } from '../generated/graphql';
+	import type { Conjugation } from '../generated/graphql';
+	import { pronounToString } from '../lib/pronoun';
 
-	export let verb: ConjugatedVerb;
+	export let conjugations: Conjugation[];
 </script>
 
 <div class="overflow-x-auto">
@@ -14,30 +15,12 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				<td>Yo</td>
-				<td>{verb.yo}</td>
-			</tr>
-			<tr>
-				<td>Tu</td>
-				<td>{verb.tu}</td>
-			</tr>
-			<tr>
-				<td>El</td>
-				<td>{verb.el}</td>
-			</tr>
-			<tr>
-				<td>Nosotros</td>
-				<td>{verb.nosotros}</td>
-			</tr>
-			<tr>
-				<td>Vosotros</td>
-				<td>{verb.vosotros}</td>
-			</tr>
-			<tr>
-				<td>Ellos</td>
-				<td>{verb.ellos}</td>
-			</tr>
+			{#each conjugations as conjugation}
+				<tr>
+					<td>{pronounToString(conjugation.pronoun)}</td>
+					<td>{conjugation.spanish}</td>
+				</tr>
+			{/each}
 		</tbody>
 	</table>
 </div>

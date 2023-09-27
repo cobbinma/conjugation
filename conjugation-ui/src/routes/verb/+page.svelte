@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Practise from '../../../components/Practise.svelte';
-	import type { ConjugatedVerb } from '../../../generated/graphql';
+	import Practise from '../../components/Practise.svelte';
+	import type { ConjugatedVerb } from '../../generated/graphql';
 
 	/** @type {import('./$types').PageData} */
 	export let data: { verb: ConjugatedVerb | undefined };
