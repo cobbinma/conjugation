@@ -42,14 +42,14 @@
 			<input
 				type="text"
 				placeholder="Type here"
-				class="input select-secondary w-full max-w-xs"
+				class="input select-primary w-full max-w-xs"
 				bind:value={guess}
 				use:focus
 			/>
 			{#if !marked}
-				<button class="btn btn-secondary">Check</button>
+				<button class="btn btn-primary m-2">Check</button>
 			{:else}
-				<button class="btn btn-primary">Next</button>
+				<button class="btn btn-secondary m-2">Next</button>
 			{/if}
 		</form>
 	</div>

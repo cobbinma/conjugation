@@ -5,7 +5,7 @@
 
 	export let verb: ConjugatedVerb;
 
-	let played: boolean;
+	let table: boolean;
 	let playing: boolean;
 </script>
 
@@ -19,14 +19,12 @@
 
 	<h2>{verb.tense.toLowerCase().replaceAll('_', ' ')}</h2>
 
-	{#if played && !playing}
+	{#if table && !playing}
 		<Table conjugations={verb.conjugations} />
 	{/if}
 
 	{#if !playing}
-		<button class="btn modal-button btn-secondary" on:click={() => (playing = true)}
-			>Practise</button
-		>
+		<button class="btn modal-button btn-primary" on:click={() => (playing = true)}>Practise</button>
 	{:else}
 		<dialog class="modal sm:modal-middle" class:modal-open={playing}>
 			<div class="modal-box">
@@ -40,10 +38,19 @@
 					{verb}
 					close={() => {
 						playing = false;
-						played = true;
+						table = true;
 					}}
 				/>
 			</div>
 		</dialog>
 	{/if}
+	<div>
+		<button class="btn modal-button btn-secondary mt-1" on:click={() => (table = !table)}>
+			{#if !table}
+				Show table
+			{:else}
+				Hide table
+			{/if}
+		</button>
+	</div>
 </div>
