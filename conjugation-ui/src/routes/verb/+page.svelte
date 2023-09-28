@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Practise from '../../components/Practise.svelte';
+	import Verb from '../../components/Verb.svelte';
 	import type { ConjugatedVerb } from '../../generated/graphql';
 
 	/** @type {import('./$types').PageData} */
@@ -13,7 +13,7 @@
 
 {#if data.verb}
 	<div class="prose h-2/3">
-		<Practise verb={data.verb} />
+		<Verb verb={data.verb} />
 	</div>
 {:else}
 	<div><h2>verb not found...</h2></div>

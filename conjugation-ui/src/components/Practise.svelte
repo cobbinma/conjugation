@@ -1,56 +1,35 @@
 <script lang="ts">
 	import type { ConjugatedVerb } from '../generated/graphql';
-	import Game from './Game.svelte';
-	import Table from './Table.svelte';
+	import { pronounToString } from '../lib/pronoun';
+	import Guess from './Guess.svelte';
 
 	export let verb: ConjugatedVerb;
+	export let close: () => void;
 
-	let table: boolean;
-	let playing: boolean;
+	let score: number = 0;
+	let index: number = 0;
+	let high: number = verb.conjugations.length;
 </script>
 
-<div class="text-column">
-	<h1>{verb.infinitive}</h1>
-	{#if verb.verbEnglish}
-		<p>
-			{verb.verbEnglish}
-		</p>
-	{/if}
-
-	<h2>{verb.tense.toLowerCase().replaceAll('_', ' ')}</h2>
-
-	{#if table && !playing}
-		<Table conjugations={verb.conjugations} />
-	{/if}
-
-	{#if !playing}
-		<button class="btn modal-button btn-primary" on:click={() => (playing = true)}>Practise</button>
-	{:else}
-		<dialog class="modal sm:modal-middle" class:modal-open={playing}>
-			<div class="modal-box">
-				<form method="dialog">
-					<button
-						class="btn btn-sm btn-circle btn-ghost absolute right-1 top-1 p-0"
-						on:click={() => (playing = false)}>✕</button
-					>
-				</form>
-				<Game
-					{verb}
-					close={() => {
-						playing = false;
-						table = true;
-					}}
+<div>
+	{#if index < verb.conjugations.length}
+		{#each verb.conjugations as conjugation, i}
+			{#if index === i}
+				<Guess
+					tense={verb.tense}
+					pronoun={pronounToString(conjugation.pronoun)}
+					infinitive={verb.infinitive}
+					answer={conjugation.spanish}
+					correct={() => score++}
+					finish={() => index++}
 				/>
-			</div>
-		</dialog>
-	{/if}
-	<div>
-		<button class="btn modal-button btn-secondary mt-1" on:click={() => (table = !table)}>
-			{#if !table}
-				Show table
-			{:else}
-				Hide table
 			{/if}
-		</button>
-	</div>
+		{/each}
+	{:else}
+		<h3>You scored {+((score / high) * 100).toFixed(2)}%!</h3>
+		You got {score} out of {high} correct.
+		<div class="modal-action">
+			<button class="btn" on:click={close}>Close</button>
+		</div>
+	{/if}
 </div>
