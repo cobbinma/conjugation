@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { navigating } from '$app/stores';
 	import { Tense } from '../generated/graphql';
 
 	let infinitive: string | undefined;
@@ -46,4 +47,7 @@
 			</form>
 		</div>
 	</section>
+	{#if $navigating}
+		<span class="loading loading-ball loading-lg" />
+	{/if}
 </div>
