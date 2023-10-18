@@ -58,6 +58,7 @@ export type QueryRootVerbArgs = {
 export enum Tense {
   Futuro = 'FUTURO',
   Imperfecto = 'IMPERFECTO',
+  Pluscuamperfecto = 'PLUSCUAMPERFECTO',
   Presente = 'PRESENTE',
   PresentePerfecto = 'PRESENTE_PERFECTO',
   Preterito = 'PRETERITO'
