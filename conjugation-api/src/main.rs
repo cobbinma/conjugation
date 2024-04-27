@@ -15,6 +15,10 @@ enum Tense {
     Futuro,
     PresentePerfecto,
     Pluscuamperfecto,
+    Condicional,
+    FuturoPerfecto,
+    PreteritoAnterior,
+    CondicionalPerfecto,
 }
 
 impl Display for Tense {
@@ -26,6 +30,10 @@ impl Display for Tense {
             Tense::Futuro => write!(f, "Futuro"),
             Tense::PresentePerfecto => write!(f, "Presente perfecto"),
             Tense::Pluscuamperfecto => write!(f, "Pluscuamperfecto"),
+            Tense::Condicional => write!(f, "Condicional"),
+            Tense::FuturoPerfecto => write!(f, "Futuro perfecto"),
+            Tense::PreteritoAnterior => write!(f, "Pretérito anterior"),
+            Tense::CondicionalPerfecto => write!(f, "Condicional perfecto"),
         }
     }
 }
@@ -41,6 +49,10 @@ impl FromStr for Tense {
             "Futuro" => Ok(Self::Futuro),
             "Presente perfecto" => Ok(Self::PresentePerfecto),
             "Pluscuamperfecto" => Ok(Self::Pluscuamperfecto),
+            "Condicional" => Ok(Self::Condicional),
+            "Futuro perfecto" => Ok(Self::FuturoPerfecto),
+            "Pretérito anterior" => Ok(Self::PreteritoAnterior),
+            "Condicional perfecto" => Ok(Self::CondicionalPerfecto),
             _ => Err(()),
         }
     }
