@@ -47,6 +47,39 @@ impl FromStr for Tense {
 }
 
 #[derive(Clone, juniper::GraphQLEnum)]
+enum Mood {
+    Indicativo,
+    Subjuntivo,
+    ImperativoAfirmativo,
+    ImperativoNegativo,
+}
+
+impl Display for Mood {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Indicativo => write!(f, "Indicativo"),
+            Self::Subjuntivo => write!(f, "Subjuntivo"),
+            Self::ImperativoAfirmativo => write!(f, "Imperativo Afirmativo"),
+            Self::ImperativoNegativo => write!(f, "Imperativo Negativo"),
+        }
+    }
+}
+
+impl FromStr for Mood {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Indicativo" => Ok(Self::Indicativo),
+            "Subjuntivo" => Ok(Self::Subjuntivo),
+            "Imperativo Afirmativo" => Ok(Self::ImperativoAfirmativo),
+            "Imperativo Negativo" => Ok(Self::ImperativoNegativo),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Clone, juniper::GraphQLEnum)]
 enum Pronoun {
     Yo,
     Tu,
@@ -77,18 +110,29 @@ impl Conjugation {
 }
 
 #[derive(Clone)]
-struct ConjugatedVerb {
+struct Verb {
+    infinitive: String,
+    infinitive_english: String,
+    gerundio: String,
+    gerundio_english: String,
+    tenses: Vec<VerbTense>,
+}
+
+#[derive(Clone)]
+struct VerbTense {
     infinitive: String,
     verb_english: Option<String>,
     tense: Tense,
+    mood: Mood,
     conjugations: Vec<Conjugation>,
 }
 
-impl From<Verb> for ConjugatedVerb {
-    fn from(value: Verb) -> Self {
-        let Verb {
+impl From<RepositoryConjugations> for VerbTense {
+    fn from(value: RepositoryConjugations) -> Self {
+        let RepositoryConjugations {
             infinitive,
             tense,
+            mood,
             verb_english,
             form_1s,
             form_2s,
@@ -140,15 +184,29 @@ impl From<Verb> for ConjugatedVerb {
             infinitive,
             verb_english,
             tense: Tense::from_str(tense.as_str()).unwrap_or(Tense::Presente),
+            mood: Mood::from_str(mood.as_str()).unwrap_or(Mood::Indicativo),
             conjugations,
         }
     }
 }
 
 #[derive(Clone, FromRow, Debug)]
-struct Verb {
+struct RepositoryInfinitive {
+    infinitive: String,
+    infinitive_english: String,
+}
+
+#[derive(Clone, FromRow, Debug)]
+struct RepositoryGerund {
+    gerund: String,
+    gerund_english: String,
+}
+
+#[derive(Clone, FromRow, Debug)]
+struct RepositoryConjugations {
     infinitive: String,
     tense: String,
+    mood: String,
     verb_english: Option<String>,
     form_1s: Option<String>,
     form_2s: Option<String>,
@@ -159,8 +217,37 @@ struct Verb {
 }
 
 #[juniper::graphql_object]
-#[graphql(description = "A Conjugated Verb")]
-impl ConjugatedVerb {
+#[graphql(description = "A Verb")]
+impl Verb {
+    #[graphql(description = "Infinitive form of the verb")]
+    fn infinitive(&self) -> &str {
+        &self.infinitive
+    }
+
+    #[graphql(description = "English translation of the infinitive")]
+    fn infinitive_english(&self) -> &str {
+        &self.infinitive_english
+    }
+
+    #[graphql(description = "Gerundio")]
+    fn gerundio(&self) -> &str {
+        &self.gerundio
+    }
+
+    #[graphql(description = "English translation of the gerundio form")]
+    fn gerundio_english(&self) -> &str {
+        &self.gerundio_english
+    }
+
+    #[graphql(description = "Tenses")]
+    fn tenses(&self) -> &Vec<VerbTense> {
+        &self.tenses
+    }
+}
+
+#[juniper::graphql_object]
+#[graphql(description = "A Verb Tense")]
+impl VerbTense {
     #[graphql(description = "Infinitive form of the verb")]
     fn infinitive(&self) -> &str {
         &self.infinitive
@@ -174,6 +261,11 @@ impl ConjugatedVerb {
     #[graphql(description = "Tense the verb has been conjugated")]
     fn tense(&self) -> &Tense {
         &self.tense
+    }
+
+    #[graphql(description = "Mood the verb has been conjugated")]
+    fn mood(&self) -> &Mood {
+        &self.mood
     }
 
     #[graphql(description = "First person singular")]
@@ -193,13 +285,74 @@ pub struct QueryRoot;
 #[juniper::graphql_object(context = State)]
 impl QueryRoot {
     #[graphql(description = "get a verb")]
-    async fn verb(
+    async fn verb(context: &State, infinitive: String) -> Option<Verb> {
+        let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "SELECT infinitive, infinitive_english FROM infinitive WHERE infinitive = ",
+        );
+        query_builder.push_bind(infinitive.clone());
+
+        let query = query_builder.build_query_as::<RepositoryInfinitive>();
+
+        let Some(RepositoryInfinitive {
+            infinitive: inf,
+            infinitive_english,
+        }) = query
+            .fetch_optional(&context.pool)
+            .await
+            .unwrap_or_default()
+        else {
+            return None;
+        };
+
+        let mut query_builder: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT gerund, gerund_english FROM gerund WHERE infinitive = ");
+        query_builder.push_bind(infinitive.clone());
+
+        let query = query_builder.build_query_as::<RepositoryGerund>();
+
+        let Some(RepositoryGerund {
+            gerund,
+            gerund_english,
+        }) = query
+            .fetch_optional(&context.pool)
+            .await
+            .unwrap_or_default()
+        else {
+            return None;
+        };
+
+        let mut query_builder: QueryBuilder<Sqlite> =
+            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE infinitive = ");
+
+        query_builder.push_bind(infinitive);
+
+        let query = query_builder.build_query_as::<RepositoryConjugations>();
+
+        let tenses: Vec<VerbTense> = query
+            .fetch_all(&context.pool)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(VerbTense::from)
+            .collect();
+
+        Some(Verb {
+            infinitive: inf,
+            infinitive_english,
+            gerundio: gerund,
+            gerundio_english: gerund_english,
+            tenses,
+        })
+    }
+
+    #[graphql(description = "get a conjugated verb")]
+    async fn verb_tense(
         context: &State,
         infinitive: Option<String>,
         tenses: Option<Vec<Tense>>,
-    ) -> Option<ConjugatedVerb> {
+    ) -> Option<VerbTense> {
         let mut query_builder: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT infinitive, tense, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE  mood = 'Indicativo'");
+            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE  mood = 'Indicativo'");
 
         if let Some(infinitive) = infinitive {
             query_builder.push(" AND infinitive = ");
@@ -226,13 +379,13 @@ impl QueryRoot {
 
         query_builder.push(" ORDER BY RANDOM() LIMIT 1");
 
-        let query = query_builder.build_query_as::<Verb>();
+        let query = query_builder.build_query_as::<RepositoryConjugations>();
 
         query
             .fetch_optional(&context.pool)
             .await
             .unwrap_or_default()
-            .map(ConjugatedVerb::from)
+            .map(VerbTense::from)
     }
 }
 
