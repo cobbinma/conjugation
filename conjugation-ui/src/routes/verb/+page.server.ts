@@ -1,30 +1,37 @@
 import axios from 'axios';
-import { Tense, type QueryRootVerbArgs } from '../../generated/graphql';
+import type { PageServerLoad } from './$types';
+import type { QueryRootVerbArgs } from '../../generated/graphql';
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ url }) {
-	const t = url.searchParams.get('tense');
-	const tense = t ? Tense[t as keyof typeof Tense] : undefined;
-
+export async function load({ url }: PageServerLoad) {
 	try {
 		const variables: QueryRootVerbArgs = {
 			infinitive: url.searchParams.get('infinitive')?.trim()?.toLowerCase(),
-			tenses: tense ? [tense] : undefined
 		};
 
-		const response = await axios.post(process.env.PUBLIC_API_ENDPOINT_URL || '', {
+		console.log(process.env.PUBLIC_API_ENDPOINT_URL || 'http://0.0.0.0:8080/graphql')
+
+		const response = await axios.post(process.env.PUBLIC_API_ENDPOINT_URL || 'http://0.0.0.0:8080/graphql', {
 			query: `
-		query SearchVerb($infinitive: String, $tenses: [Tense!]) {
-			verb(infinitive: $infinitive, tenses: $tenses) {
-				tense
-				infinitive
-				verbEnglish
-				conjugations {
-					pronoun
-					spanish
-				}
+query SearchVerb($infinitive: String!) {
+	verb(infinitive: $infinitive) {
+		infinitive
+		infinitiveEnglish
+		gerundio
+		gerundioEnglish
+		tenses {
+			title
+			tense
+			mood
+			infinitive
+			verbEnglish
+			conjugations {
+				pronoun
+				spanish
 			}
 		}
+	}
+}
 	`,
 			variables
 		});

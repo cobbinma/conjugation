@@ -156,10 +156,12 @@ impl From<RepositoryConjugations> for VerbTense {
 
         let mut conjugations = vec![];
         if let Some(spanish) = form_1s {
-            conjugations.push(Conjugation {
-                pronoun: Pronoun::Yo,
-                spanish,
-            })
+            if !spanish.is_empty() {
+                conjugations.push(Conjugation {
+                    pronoun: Pronoun::Yo,
+                    spanish,
+                })
+            }
         }
         if let Some(spanish) = form_2s {
             conjugations.push(Conjugation {
@@ -174,10 +176,12 @@ impl From<RepositoryConjugations> for VerbTense {
             })
         }
         if let Some(spanish) = form_1p {
-            conjugations.push(Conjugation {
-                pronoun: Pronoun::Nosotros,
-                spanish,
-            })
+            if !spanish.is_empty() {
+                conjugations.push(Conjugation {
+                    pronoun: Pronoun::Nosotros,
+                    spanish,
+                })
+            }
         }
         if let Some(spanish) = form_2p {
             conjugations.push(Conjugation {
@@ -280,6 +284,29 @@ impl VerbTense {
         &self.mood
     }
 
+    #[graphql(description = "Title of the combined tense and mood")]
+    fn title(&self) -> &str {
+        match (&self.tense, &self.mood) {
+            (Tense::Presente, Mood::Indicativo) => "Presente de Indicativo",
+            (Tense::Imperfecto, Mood::Indicativo) => "Imperfecto de Indicativo",
+            (Tense::Preterito, Mood::Indicativo) => "Pretérito",
+            (Tense::Futuro, Mood::Indicativo) => "Futuro",
+            (Tense::Condicional, Mood::Indicativo) => "Potencial Simple",
+            (Tense::Presente, Mood::Subjuntivo) => "Presente de Subjuntivo",
+            (Tense::Imperfecto, Mood::Subjuntivo) => "Imperfecto de Subjuntivo",
+            (Tense::PresentePerfecto, Mood::Indicativo) => "Perfecto de Indicativo",
+            (Tense::Pluscuamperfecto, Mood::Indicativo) => "Pluscuamperfecto de Indicativo",
+            (Tense::PreteritoAnterior, Mood::Indicativo) => "Pretérito Anterior",
+            (Tense::FuturoPerfecto, Mood::Indicativo) => "Futuro Perfecto",
+            (Tense::CondicionalPerfecto, Mood::Indicativo) => "Potencial Compuesto",
+            (Tense::PresentePerfecto, Mood::Subjuntivo) => "Perfecto de Subjuntivo",
+            (Tense::Pluscuamperfecto, Mood::Subjuntivo) => "Pluscuamperfecto de Subjuntivo",
+            (Tense::Presente, Mood::ImperativoAfirmativo) => "Imperativo Afirmativo",
+            (Tense::Presente, Mood::ImperativoNegativo) => "Imperativo Negativo",
+            _ => "",
+        }
+    }
+
     #[graphql(description = "First person singular")]
     fn conjugations(&self) -> &Vec<Conjugation> {
         &self.conjugations
@@ -334,7 +361,7 @@ impl QueryRoot {
         };
 
         let mut query_builder: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE infinitive = ");
+            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE NOT (mood = 'Subjuntivo' AND (tense = 'Futuro' OR tense = 'Futuro perfecto')) AND infinitive = ");
 
         query_builder.push_bind(infinitive);
 
