@@ -1,9 +1,8 @@
 <script lang="ts">
-	import type { ConjugatedVerb } from '../generated/graphql';
-	import Practise from './Practise.svelte';
-	import Table from './Table.svelte';
+	import type { Verb } from '../generated/graphql';
+	import Tense from './Tense.svelte';
 
-	export let verb: ConjugatedVerb;
+	export let verb: Verb;
 
 	let table: boolean;
 	let playing: boolean;
@@ -11,46 +10,31 @@
 
 <div class="text-column">
 	<h1>{verb.infinitive}</h1>
-	{#if verb.verbEnglish}
+	{#if verb.infinitiveEnglish}
 		<p>
-			{verb.verbEnglish}
+			{verb.infinitiveEnglish}
 		</p>
 	{/if}
 
-	<h2>{verb.tense.toLowerCase().replaceAll('_', ' ')}</h2>
-
-	{#if table && !playing}
-		<Table conjugations={verb.conjugations} />
-	{/if}
-
-	{#if !playing}
-		<button class="btn modal-button btn-primary" on:click={() => (playing = true)}>Practise</button>
-	{:else}
-		<dialog class="modal sm:modal-middle" class:modal-open={playing}>
-			<div class="modal-box">
-				<form method="dialog">
-					<button
-						class="btn btn-sm btn-circle btn-ghost absolute right-1 top-1 p-0"
-						on:click={() => (playing = false)}>✕</button
-					>
-				</form>
-				<Practise
-					{verb}
-					close={() => {
-						playing = false;
-						table = true;
-					}}
-				/>
-			</div>
-		</dialog>
-	{/if}
 	<div>
-		<button class="btn modal-button btn-secondary mt-1" on:click={() => (table = !table)}>
-			{#if !table}
-				Show table
-			{:else}
-				Hide table
-			{/if}
-		</button>
+		<table class="table-md">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th>Gerundio</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+					<tr>
+						<td>{verb.gerundio}</td>
+						<td>{verb.gerundioEnglish}</td>
+					</tr>
+			</tbody>
+		</table>
 	</div>
+
+	{#each verb.tenses as tense}
+		<Tense tense={tense} playing={playing} />
+	{/each}
 </div>

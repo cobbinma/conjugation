@@ -14,18 +14,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
-export type ConjugatedVerb = {
-  __typename?: 'ConjugatedVerb';
-  /** First person singular */
-  conjugations: Array<Conjugation>;
-  /** Infinitive form of the verb */
-  infinitive: Scalars['String']['output'];
-  /** Tense the verb has been conjugated */
-  tense: Tense;
-  /** English form of the verb */
-  verbEnglish?: Maybe<Scalars['String']['output']>;
-};
-
 export type Conjugation = {
   __typename?: 'Conjugation';
   /** Pronoun used for the conjugation */
@@ -33,6 +21,13 @@ export type Conjugation = {
   /** Conjugated verb in spanish */
   spanish: Scalars['String']['output'];
 };
+
+export enum Mood {
+  ImperativoAfirmativo = 'IMPERATIVO_AFIRMATIVO',
+  ImperativoNegativo = 'IMPERATIVO_NEGATIVO',
+  Indicativo = 'INDICATIVO',
+  Subjuntivo = 'SUBJUNTIVO'
+}
 
 export enum Pronoun {
   El = 'EL',
@@ -46,20 +41,61 @@ export enum Pronoun {
 export type QueryRoot = {
   __typename?: 'QueryRoot';
   /** get a verb */
-  verb?: Maybe<ConjugatedVerb>;
+  verb?: Maybe<Verb>;
+  /** get a conjugated verb */
+  verbTense?: Maybe<VerbTense>;
 };
 
 
 export type QueryRootVerbArgs = {
+  infinitive: Scalars['String']['input'];
+};
+
+
+export type QueryRootVerbTenseArgs = {
   infinitive?: InputMaybe<Scalars['String']['input']>;
   tenses?: InputMaybe<Array<Tense>>;
 };
 
 export enum Tense {
+  Condicional = 'CONDICIONAL',
+  CondicionalPerfecto = 'CONDICIONAL_PERFECTO',
   Futuro = 'FUTURO',
+  FuturoPerfecto = 'FUTURO_PERFECTO',
   Imperfecto = 'IMPERFECTO',
   Pluscuamperfecto = 'PLUSCUAMPERFECTO',
   Presente = 'PRESENTE',
   PresentePerfecto = 'PRESENTE_PERFECTO',
-  Preterito = 'PRETERITO'
+  Preterito = 'PRETERITO',
+  PreteritoAnterior = 'PRETERITO_ANTERIOR'
 }
+
+export type Verb = {
+  __typename?: 'Verb';
+  /** Gerundio */
+  gerundio: Scalars['String']['output'];
+  /** English translation of the gerundio form */
+  gerundioEnglish: Scalars['String']['output'];
+  /** Infinitive form of the verb */
+  infinitive: Scalars['String']['output'];
+  /** English translation of the infinitive */
+  infinitiveEnglish: Scalars['String']['output'];
+  /** Tenses */
+  tenses: Array<VerbTense>;
+};
+
+export type VerbTense = {
+  __typename?: 'VerbTense';
+  /** First person singular */
+  conjugations: Array<Conjugation>;
+  /** Infinitive form of the verb */
+  infinitive: Scalars['String']['output'];
+  /** Mood the verb has been conjugated */
+  mood: Mood;
+  /** Tense the verb has been conjugated */
+  tense: Tense;
+  /** Title of the combined tense and mood */
+  title: Scalars['String']['output'];
+  /** English form of the verb */
+  verbEnglish?: Maybe<Scalars['String']['output']>;
+};

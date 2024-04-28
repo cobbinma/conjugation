@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { Tense } from '../generated/graphql';
-
-	export let tense: Tense;
+	export let tense: string;
+	export let english: string;
 	export let pronoun: string;
 	export let infinitive: string;
 	export let answer: string;
@@ -35,7 +34,8 @@
 </script>
 
 <div>
-	<h2>{tense.toString().toLowerCase().replaceAll('_', ' ')}</h2>
+	<h2>{tense}</h2>
+	<p>{english}</p>
 	<h3>{pronoun} ({infinitive})</h3>
 	<div>
 		<form on:submit|preventDefault={check}>

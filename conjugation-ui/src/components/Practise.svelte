@@ -1,24 +1,25 @@
 <script lang="ts">
-	import type { ConjugatedVerb } from '../generated/graphql';
+	import type { VerbTense } from '../generated/graphql';
 	import { pronounToString } from '../lib/pronoun';
 	import Guess from './Guess.svelte';
 
-	export let verb: ConjugatedVerb;
+	export let tense: VerbTense;
 	export let close: () => void;
 
 	let score: number = 0;
 	let index: number = 0;
-	let high: number = verb.conjugations.length;
+	let high: number = tense.conjugations.length;
 </script>
 
 <div>
-	{#if index < verb.conjugations.length}
-		{#each verb.conjugations as conjugation, i}
+	{#if index < tense.conjugations.length}
+		{#each tense.conjugations as conjugation, i}
 			{#if index === i}
 				<Guess
-					tense={verb.tense}
+					tense={tense.title}
+					english={tense.verbEnglish || ""}
 					pronoun={pronounToString(conjugation.pronoun)}
-					infinitive={verb.infinitive}
+					infinitive={tense.infinitive}
 					answer={conjugation.spanish}
 					correct={() => score++}
 					finish={() => index++}

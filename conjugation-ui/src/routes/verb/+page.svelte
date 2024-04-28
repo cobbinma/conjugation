@@ -1,19 +1,19 @@
 <script lang="ts">
-	import Verb from '../../components/Verb.svelte';
-	import type { ConjugatedVerb } from '../../generated/graphql';
+	import VerbComponent from '../../components/Verb.svelte';
+	import type { Verb } from '../../generated/graphql';
 
 	/** @type {import('./$types').PageData} */
-	export let data: { verb: ConjugatedVerb | undefined };
+	export let data: { verb: Verb | undefined };
 </script>
 
 <svelte:head>
 	<title>Practise</title>
-	<meta name="description" content="practise conjugating verbs" />
+	<meta name="description" content="practice conjugating verbs" />
 </svelte:head>
 
 {#if data.verb}
 	<div class="prose h-2/3">
-		<Verb verb={data.verb} />
+		<VerbComponent verb={data.verb} />
 	</div>
 {:else}
 	<div><h2>verb not found...</h2></div>
