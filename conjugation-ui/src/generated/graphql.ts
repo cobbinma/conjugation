@@ -42,19 +42,11 @@ export type QueryRoot = {
   __typename?: 'QueryRoot';
   /** get a verb */
   verb?: Maybe<Verb>;
-  /** get a conjugated verb */
-  verbTense?: Maybe<VerbTense>;
 };
 
 
 export type QueryRootVerbArgs = {
   infinitive: Scalars['String']['input'];
-};
-
-
-export type QueryRootVerbTenseArgs = {
-  infinitive?: InputMaybe<Scalars['String']['input']>;
-  tenses?: InputMaybe<Array<Tense>>;
 };
 
 export enum Tense {

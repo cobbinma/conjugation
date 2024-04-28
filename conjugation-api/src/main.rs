@@ -71,7 +71,7 @@ impl Ord for Tense {
             (Tense::Presente, _) => Ordering::Less,
             (_, Tense::Presente) => Ordering::Greater,
             (Tense::Imperfecto, Tense::Imperfecto) => Ordering::Equal,
-            (Tense::Imperfecto, _) =>  Ordering::Less,
+            (Tense::Imperfecto, _) => Ordering::Less,
             (_, Tense::Imperfecto) => Ordering::Greater,
             (Tense::Preterito, Tense::Preterito) => Ordering::Equal,
             (Tense::Preterito, _) => Ordering::Less,
@@ -154,7 +154,6 @@ impl Ord for Mood {
         }
     }
 }
-
 
 #[derive(Clone, juniper::GraphQLEnum, PartialEq, Eq)]
 enum Pronoun {
@@ -436,7 +435,7 @@ impl QueryRoot {
             .unwrap_or_default()?;
 
         let mut query_builder: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE NOT (mood = 'Subjuntivo' AND (tense = 'Futuro' OR tense = 'Futuro perfecto')) AND infinitive LIKE ");
+            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE NOT (mood = 'Subjuntivo' AND (tense = 'Futuro' OR tense = 'Futuro perfecto')) AND infinitive = ");
 
         query_builder.push_bind(infinitive);
 
@@ -458,49 +457,6 @@ impl QueryRoot {
             gerundio_english: gerund_english,
             tenses,
         })
-    }
-
-    #[graphql(description = "get a conjugated verb")]
-    async fn verb_tense(
-        context: &State,
-        infinitive: Option<String>,
-        tenses: Option<Vec<Tense>>,
-    ) -> Option<VerbTense> {
-        let mut query_builder: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE  mood = 'Indicativo'");
-
-        if let Some(infinitive) = infinitive {
-            query_builder.push(" AND infinitive LIKE ");
-            query_builder.push_bind(infinitive);
-        };
-
-        let tenses = match tenses {
-            Some(tenses) if !tenses.is_empty() => tenses,
-            _ => vec![
-                Tense::Presente,
-                Tense::Imperfecto,
-                Tense::Preterito,
-                Tense::Futuro,
-                Tense::PresentePerfecto,
-            ],
-        };
-
-        query_builder.push(" AND tense IN (");
-        let mut separated = query_builder.separated(", ");
-        for tense in tenses.iter() {
-            separated.push_bind(tense.to_string());
-        }
-        separated.push_unseparated(")");
-
-        query_builder.push(" ORDER BY RANDOM() LIMIT 1");
-
-        let query = query_builder.build_query_as::<RepositoryConjugations>();
-
-        query
-            .fetch_optional(&context.pool)
-            .await
-            .unwrap_or_default()
-            .map(VerbTense::from)
     }
 }
 

@@ -4,8 +4,6 @@ schema {
 type QueryRoot {
   "get a verb"
   verb(infinitive: String!): Verb
-  "get a conjugated verb"
-  verbTense(infinitive: String, tenses: [Tense!]): VerbTense
 }
 type Verb {
   "Infinitive form of the verb"
