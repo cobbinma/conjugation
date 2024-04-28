@@ -1,4 +1,4 @@
-use std::{fmt::Display, str::FromStr};
+use std::{cmp::Ordering, fmt::Display, str::FromStr};
 
 use juniper::{http::graphiql, http::GraphQLRequest, EmptyMutation, EmptySubscription, RootNode};
 use lazy_static::lazy_static;
@@ -7,7 +7,7 @@ use tide::{http::mime, Body, Redirect, Request, Response, Server, StatusCode};
 
 const DB_URL: &str = "sqlite://data/verbs.db";
 
-#[derive(Clone, juniper::GraphQLEnum)]
+#[derive(Clone, juniper::GraphQLEnum, PartialEq, Eq)]
 enum Tense {
     Presente,
     Preterito,
@@ -58,7 +58,48 @@ impl FromStr for Tense {
     }
 }
 
-#[derive(Clone, juniper::GraphQLEnum)]
+impl PartialOrd for Tense {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Tense {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            (Tense::Presente, Tense::Presente) => Ordering::Equal,
+            (Tense::Presente, _) => Ordering::Less,
+            (_, Tense::Presente) => Ordering::Greater,
+            (Tense::Imperfecto, Tense::Imperfecto) => Ordering::Equal,
+            (Tense::Imperfecto, _) => Ordering::Less,
+            (_, Tense::Imperfecto) => Ordering::Greater,
+            (Tense::Preterito, Tense::Preterito) => Ordering::Equal,
+            (Tense::Preterito, _) => Ordering::Less,
+            (_, Tense::Preterito) => Ordering::Greater,
+            (Tense::Futuro, Tense::Futuro) => Ordering::Equal,
+            (Tense::Futuro, _) => Ordering::Less,
+            (_, Tense::Futuro) => Ordering::Greater,
+            (Tense::Condicional, Tense::Condicional) => Ordering::Equal,
+            (Tense::Condicional, _) => Ordering::Less,
+            (_, Tense::Condicional) => Ordering::Greater,
+            (Tense::PresentePerfecto, Tense::PresentePerfecto) => Ordering::Equal,
+            (Tense::PresentePerfecto, _) => Ordering::Less,
+            (_, Tense::PresentePerfecto) => Ordering::Greater,
+            (Tense::Pluscuamperfecto, Tense::Pluscuamperfecto) => Ordering::Equal,
+            (Tense::Pluscuamperfecto, _) => Ordering::Less,
+            (_, Tense::Pluscuamperfecto) => Ordering::Greater,
+            (Tense::PreteritoAnterior, Tense::PreteritoAnterior) => Ordering::Equal,
+            (Tense::PreteritoAnterior, _) => Ordering::Less,
+            (_, Tense::PreteritoAnterior) => Ordering::Greater,
+            (Tense::FuturoPerfecto, Tense::FuturoPerfecto) => Ordering::Equal,
+            (Tense::FuturoPerfecto, _) => Ordering::Less,
+            (_, Tense::FuturoPerfecto) => Ordering::Greater,
+            (Tense::CondicionalPerfecto, Tense::CondicionalPerfecto) => Ordering::Equal,
+        }
+    }
+}
+
+#[derive(Clone, juniper::GraphQLEnum, PartialEq, Eq)]
 enum Mood {
     Indicativo,
     Subjuntivo,
@@ -91,7 +132,30 @@ impl FromStr for Mood {
     }
 }
 
-#[derive(Clone, juniper::GraphQLEnum)]
+impl PartialOrd for Mood {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Mood {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            (Mood::Indicativo, Mood::Indicativo) => Ordering::Equal,
+            (Mood::Indicativo, _) => Ordering::Less,
+            (_, Mood::Indicativo) => Ordering::Greater,
+            (Mood::Subjuntivo, Mood::Subjuntivo) => Ordering::Equal,
+            (Mood::Subjuntivo, _) => Ordering::Less,
+            (_, Mood::Subjuntivo) => Ordering::Greater,
+            (Mood::ImperativoAfirmativo, Mood::ImperativoAfirmativo) => Ordering::Equal,
+            (Mood::ImperativoAfirmativo, _) => Ordering::Less,
+            (_, Mood::ImperativoAfirmativo) => Ordering::Greater,
+            (Mood::ImperativoNegativo, Mood::ImperativoNegativo) => Ordering::Equal,
+        }
+    }
+}
+
+#[derive(Clone, juniper::GraphQLEnum, PartialEq, Eq)]
 enum Pronoun {
     Yo,
     Tu,
@@ -101,7 +165,7 @@ enum Pronoun {
     Ellos,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 struct Conjugation {
     pronoun: Pronoun,
     spanish: String,
@@ -130,13 +194,29 @@ struct Verb {
     tenses: Vec<VerbTense>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 struct VerbTense {
     infinitive: String,
     verb_english: Option<String>,
     tense: Tense,
     mood: Mood,
     conjugations: Vec<Conjugation>,
+}
+
+impl Ord for VerbTense {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        if self.mood == other.mood {
+            self.tense.cmp(&other.tense)
+        } else {
+            self.mood.cmp(&other.mood)
+        }
+    }
+}
+
+impl PartialOrd for VerbTense {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl From<RepositoryConjugations> for VerbTense {
@@ -361,13 +441,14 @@ impl QueryRoot {
 
         let query = query_builder.build_query_as::<RepositoryConjugations>();
 
-        let tenses: Vec<VerbTense> = query
+        let mut tenses: Vec<VerbTense> = query
             .fetch_all(&context.pool)
             .await
             .unwrap_or_default()
             .into_iter()
             .map(VerbTense::from)
             .collect();
+        tenses.sort();
 
         Some(Verb {
             infinitive: inf,
@@ -376,49 +457,6 @@ impl QueryRoot {
             gerundio_english: gerund_english,
             tenses,
         })
-    }
-
-    #[graphql(description = "get a conjugated verb")]
-    async fn verb_tense(
-        context: &State,
-        infinitive: Option<String>,
-        tenses: Option<Vec<Tense>>,
-    ) -> Option<VerbTense> {
-        let mut query_builder: QueryBuilder<Sqlite> =
-            QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE  mood = 'Indicativo'");
-
-        if let Some(infinitive) = infinitive {
-            query_builder.push(" AND infinitive = ");
-            query_builder.push_bind(infinitive);
-        };
-
-        let tenses = match tenses {
-            Some(tenses) if !tenses.is_empty() => tenses,
-            _ => vec![
-                Tense::Presente,
-                Tense::Imperfecto,
-                Tense::Preterito,
-                Tense::Futuro,
-                Tense::PresentePerfecto,
-            ],
-        };
-
-        query_builder.push(" AND tense IN (");
-        let mut separated = query_builder.separated(", ");
-        for tense in tenses.iter() {
-            separated.push_bind(tense.to_string());
-        }
-        separated.push_unseparated(")");
-
-        query_builder.push(" ORDER BY RANDOM() LIMIT 1");
-
-        let query = query_builder.build_query_as::<RepositoryConjugations>();
-
-        query
-            .fetch_optional(&context.pool)
-            .await
-            .unwrap_or_default()
-            .map(VerbTense::from)
     }
 }
 
