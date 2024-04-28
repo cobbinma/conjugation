@@ -1,4 +1,3 @@
-import { Tense } from '../generated/graphql';
 import Guess from './Guess.svelte';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import '@testing-library/jest-dom';
@@ -7,14 +6,15 @@ describe('Guess Component', () => {
 	test('should render the component', () => {
 		render(Guess, {
 			infinitive: 'hablar',
-			tense: Tense.Presente,
+			english: '',
+			tense: 'Presente de Indicativo',
 			pronoun: 'Yo',
 			answer: 'hablo',
 			correct: () => {},
 			finish: () => {}
 		});
 
-		const title = screen.getByText('presente');
+		const title = screen.getByText('Presente de Indicativo');
 		expect(title).toBeInTheDocument();
 
 		const subtitle = screen.getByText('Yo (hablar)');
@@ -26,7 +26,7 @@ describe('Guess Component', () => {
 		let done: boolean = false;
 		render(Guess, {
 			infinitive: 'hablar',
-			tense: Tense.Presente,
+			tense: 'Presente de Indicativo',
 			pronoun: 'Yo',
 			answer: 'hablo',
 			correct: () => {
@@ -62,7 +62,7 @@ describe('Guess Component', () => {
 		let done: boolean = false;
 		render(Guess, {
 			infinitive: 'hablar',
-			tense: Tense.Presente,
+			tense: 'Presente de Indicativo',
 			pronoun: 'Yo',
 			answer: 'hablo',
 			correct: () => {
