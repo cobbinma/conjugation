@@ -9,8 +9,6 @@ export async function load({ url }: PageServerLoad) {
 			infinitive: url.searchParams.get('infinitive')?.trim()?.toLowerCase(),
 		};
 
-		console.log(process.env.PUBLIC_API_ENDPOINT_URL || 'http://0.0.0.0:8080/graphql')
-
 		const response = await axios.post(process.env.PUBLIC_API_ENDPOINT_URL || 'http://0.0.0.0:8080/graphql', {
 			query: `
 query SearchVerb($infinitive: String!) {
