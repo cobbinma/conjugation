@@ -332,16 +332,13 @@ impl QueryRoot {
 
         let query = query_builder.build_query_as::<RepositoryInfinitive>();
 
-        let Some(RepositoryInfinitive {
+        let RepositoryInfinitive {
             infinitive: inf,
             infinitive_english,
-        }) = query
+        } = query
             .fetch_optional(&context.pool)
             .await
-            .unwrap_or_default()
-        else {
-            return None;
-        };
+            .unwrap_or_default()?;
 
         let mut query_builder: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT gerund, gerund_english FROM gerund WHERE infinitive = ");
@@ -349,16 +346,13 @@ impl QueryRoot {
 
         let query = query_builder.build_query_as::<RepositoryGerund>();
 
-        let Some(RepositoryGerund {
+        let RepositoryGerund {
             gerund,
             gerund_english,
-        }) = query
+        } = query
             .fetch_optional(&context.pool)
             .await
-            .unwrap_or_default()
-        else {
-            return None;
-        };
+            .unwrap_or_default()?;
 
         let mut query_builder: QueryBuilder<Sqlite> =
             QueryBuilder::new("SELECT infinitive, tense, mood, verb_english, form_1s, form_2s, form_3s, form_1p, form_2p, form_3p FROM verbs WHERE NOT (mood = 'Subjuntivo' AND (tense = 'Futuro' OR tense = 'Futuro perfecto')) AND infinitive = ");
