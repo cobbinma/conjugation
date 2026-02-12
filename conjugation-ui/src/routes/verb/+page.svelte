@@ -3,24 +3,34 @@
 	import type { Verb } from '../../generated/graphql';
 
 	/** @type {import('./$types').PageData} */
-	export let data: { verb: Verb | undefined };
+	let { data }: { data: { verb: Verb | undefined } } = $props();
 </script>
 
 <svelte:head>
-	<title>Practise</title>
+	<title>{data.verb ? data.verb.infinitive : 'Practise'} - Conjugación</title>
 	<meta name="description" content="practice conjugating verbs" />
 </svelte:head>
 
-{#if data.verb}
-	<div class="prose h-2/3">
-		<VerbComponent verb={data.verb} />
-	</div>
-{:else}
-	<div><h2>verb not found...</h2></div>
-	<button
-		class="btn mt-5 btn-outline btn-error"
-		on:click={() => {
-			window.history.back();
-		}}>Try Again</button
-	>
-{/if}
+<div class="max-w-6xl mx-auto py-8">
+	{#if data.verb}
+		<div class="animate-fade-in">
+			<VerbComponent verb={data.verb} />
+		</div>
+	{:else}
+		<div class="card-colorful max-w-md mx-auto text-center animate-bounce-in">
+			<div class="text-6xl mb-6">😕</div>
+			<h2 class="text-3xl font-display font-bold text-error mb-4">Verb not found</h2>
+			<p class="text-lg text-neutral/70 mb-6">
+				We couldn't find that verb in our database. Try another one!
+			</p>
+			<button
+				class="btn btn-error btn-lg rounded-full px-8 hover:scale-105 transition-transform"
+				onclick={() => {
+					window.history.back();
+				}}
+			>
+				← Try Again
+			</button>
+		</div>
+	{/if}
+</div>

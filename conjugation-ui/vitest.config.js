@@ -6,5 +6,8 @@ export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		globals: true
+	},
+	resolve: {
+		conditions: process.env.VITEST ? ['browser'] : []
 	}
 });

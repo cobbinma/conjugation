@@ -3,14 +3,21 @@ import type { PageServerLoad } from './$types';
 import type { QueryRootVerbArgs } from '../../generated/graphql';
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ url }: PageServerLoad) {
+export const load: PageServerLoad = async ({ url }) => {
 	try {
+		const infinitiveParam = url.searchParams.get('infinitive')?.trim()?.toLowerCase();
+		if (!infinitiveParam) {
+			return { verb: undefined };
+		}
+
 		const variables: QueryRootVerbArgs = {
-			infinitive: url.searchParams.get('infinitive')?.trim()?.toLowerCase(),
+			infinitive: infinitiveParam
 		};
 
-		const response = await axios.post(process.env.PUBLIC_API_ENDPOINT_URL || 'http://0.0.0.0:8080/graphql', {
-			query: `
+		const response = await axios.post(
+			process.env.PUBLIC_API_ENDPOINT_URL || 'http://0.0.0.0:8080/graphql',
+			{
+				query: `
 query SearchVerb($infinitive: String!) {
 	verb(infinitive: $infinitive) {
 		infinitive
@@ -31,11 +38,12 @@ query SearchVerb($infinitive: String!) {
 	}
 }
 	`,
-			variables
-		});
+				variables
+			}
+		);
 
 		return { verb: response?.data?.data?.verb };
 	} catch (error) {
 		console.error(`Error in load function for /: ${error}`);
 	}
-}
+};

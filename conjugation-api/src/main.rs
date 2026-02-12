@@ -1,9 +1,18 @@
 use std::{cmp::Ordering, fmt::Display, str::FromStr};
 
+use axum::{
+    extract::State as AxumState,
+    http::StatusCode,
+    response::{Html, IntoResponse, Json, Redirect},
+    routing::{get, post},
+    Router,
+};
 use juniper::{http::graphiql, http::GraphQLRequest, EmptyMutation, EmptySubscription, RootNode};
 use lazy_static::lazy_static;
+use serde_json::json;
 use sqlx::{FromRow, QueryBuilder, Sqlite, SqlitePool};
-use tide::{http::mime, Body, Redirect, Request, Response, Server, StatusCode};
+use std::sync::Arc;
+use tower_http::cors::CorsLayer;
 
 const DB_URL: &str = "sqlite://data/verbs.db";
 
@@ -394,17 +403,17 @@ impl VerbTense {
 }
 
 #[derive(Clone)]
-pub struct State {
+pub struct AppState {
     pool: SqlitePool,
 }
-impl juniper::Context for State {}
+impl juniper::Context for AppState {}
 
 pub struct QueryRoot;
 
-#[juniper::graphql_object(context = State)]
+#[juniper::graphql_object(context = AppState)]
 impl QueryRoot {
     #[graphql(description = "get a verb")]
-    async fn verb(context: &State, infinitive: String) -> Option<Verb> {
+    async fn verb(context: &AppState, infinitive: String) -> Option<Verb> {
         let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
             "SELECT infinitive, infinitive_english FROM infinitive WHERE infinitive = ",
         );
@@ -460,39 +469,49 @@ impl QueryRoot {
     }
 }
 
-pub type Schema = RootNode<'static, QueryRoot, EmptyMutation<State>, EmptySubscription<State>>;
+pub type Schema =
+    RootNode<'static, QueryRoot, EmptyMutation<AppState>, EmptySubscription<AppState>>;
 lazy_static! {
     static ref SCHEMA: Schema =
         Schema::new(QueryRoot {}, EmptyMutation::new(), EmptySubscription::new());
 }
 
-async fn handle_graphql(mut request: Request<State>) -> tide::Result {
-    let query: GraphQLRequest = request.body_json().await?;
-    let response = query.execute(&SCHEMA, request.state()).await;
+async fn handle_graphql(
+    AxumState(state): AxumState<Arc<AppState>>,
+    Json(query): Json<GraphQLRequest>,
+) -> impl IntoResponse {
+    let response = query.execute(&SCHEMA, &*state).await;
     let status = if response.is_ok() {
-        StatusCode::Ok
+        StatusCode::OK
     } else {
-        StatusCode::BadRequest
+        StatusCode::BAD_REQUEST
     };
 
-    Ok(Response::builder(status)
-        .body(Body::from_json(&response)?)
-        .build())
+    (status, Json(json!(response)))
 }
 
-async fn handle_graphiql(_: Request<State>) -> tide::Result<impl Into<Response>> {
-    Ok(Response::builder(200)
-        .body(graphiql::graphiql_source("/graphql", None))
-        .content_type(mime::HTML))
+async fn handle_graphiql() -> impl IntoResponse {
+    Html(graphiql::graphiql_source("/graphql", None))
 }
 
-#[async_std::main]
-async fn main() -> std::io::Result<()> {
-    let db = SqlitePool::connect(DB_URL).await.unwrap();
-    let mut app = Server::with_state(State { pool: db });
-    app.at("/").get(Redirect::permanent("/graphiql"));
-    app.at("/graphql").post(handle_graphql);
-    app.at("/graphiql").get(handle_graphiql);
-    app.listen("[::]:8080").await?;
+async fn handle_redirect() -> Redirect {
+    Redirect::permanent("/graphiql")
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let db = SqlitePool::connect(DB_URL).await?;
+    let state = Arc::new(AppState { pool: db });
+
+    let app = Router::new()
+        .route("/", get(handle_redirect))
+        .route("/graphql", post(handle_graphql))
+        .route("/graphiql", get(handle_graphiql))
+        .layer(CorsLayer::permissive())
+        .with_state(state);
+
+    let listener = tokio::net::TcpListener::bind("[::]:8080").await?;
+    println!("Server running on http://localhost:8080");
+    axum::serve(listener, app).await?;
     Ok(())
 }

@@ -1,66 +1,65 @@
 schema {
-  query: QueryRoot
+	query: QueryRoot
 }
 type QueryRoot {
-  "get a verb"
-  verb(infinitive: String!): Verb
+	"get a verb"
+	verb(infinitive: String!): Verb
 }
 type Verb {
-  "Infinitive form of the verb"
-  infinitive: String!
-  "English translation of the infinitive"
-  infinitiveEnglish: String!
-  "Gerundio"
-  gerundio: String!
-  "English translation of the gerundio form"
-  gerundioEnglish: String!
-  "Tenses"
-  tenses: [VerbTense!]!
+	"Infinitive form of the verb"
+	infinitive: String!
+	"English translation of the infinitive"
+	infinitiveEnglish: String!
+	"Gerundio"
+	gerundio: String!
+	"English translation of the gerundio form"
+	gerundioEnglish: String!
+	"Tenses"
+	tenses: [VerbTense!]!
 }
 type Conjugation {
-  "Pronoun used for the conjugation"
-  pronoun: Pronoun!
-  "Conjugated verb in spanish"
-  spanish: String!
+	"Pronoun used for the conjugation"
+	pronoun: Pronoun!
+	"Conjugated verb in spanish"
+	spanish: String!
 }
 type VerbTense {
-  "Infinitive form of the verb"
-  infinitive: String!
-  "English form of the verb"
-  verbEnglish: String
-  "Tense the verb has been conjugated"
-  tense: Tense!
-  "Mood the verb has been conjugated"
-  mood: Mood!
-  "Title of the combined tense and mood"
-  title: String!
-  "First person singular"
-  conjugations: [Conjugation!]!
+	"Infinitive form of the verb"
+	infinitive: String!
+	"English form of the verb"
+	verbEnglish: String
+	"Tense the verb has been conjugated"
+	tense: Tense!
+	"Mood the verb has been conjugated"
+	mood: Mood!
+	"Title of the combined tense and mood"
+	title: String!
+	"First person singular"
+	conjugations: [Conjugation!]!
 }
 enum Pronoun {
-  YO
-  TU
-  EL
-  NOSOTROS
-  VOSOTROS
-  ELLOS
+	YO
+	TU
+	EL
+	NOSOTROS
+	VOSOTROS
+	ELLOS
 }
 enum Tense {
-  PRESENTE
-  PRETERITO
-  IMPERFECTO
-  FUTURO
-  PRESENTE_PERFECTO
-  PLUSCUAMPERFECTO
-  CONDICIONAL
-  FUTURO_PERFECTO
-  PRETERITO_ANTERIOR
-  CONDICIONAL_PERFECTO
+	PRESENTE
+	PRETERITO
+	IMPERFECTO
+	FUTURO
+	PRESENTE_PERFECTO
+	PLUSCUAMPERFECTO
+	CONDICIONAL
+	FUTURO_PERFECTO
+	PRETERITO_ANTERIOR
+	CONDICIONAL_PERFECTO
 }
 enum Mood {
-  INDICATIVO
-  SUBJUNTIVO
-  IMPERATIVO_AFIRMATIVO
-  IMPERATIVO_NEGATIVO
+	INDICATIVO
+	SUBJUNTIVO
+	IMPERATIVO_AFIRMATIVO
+	IMPERATIVO_NEGATIVO
 }
-

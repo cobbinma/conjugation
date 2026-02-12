@@ -17,8 +17,8 @@ describe('Guess Component', () => {
 		const title = screen.getByText('Presente de Indicativo');
 		expect(title).toBeInTheDocument();
 
-		const subtitle = screen.getByText('Yo (hablar)');
-		expect(subtitle).toBeInTheDocument();
+		const subtitle = screen.getByRole('heading', { level: 3 });
+		expect(subtitle).toHaveTextContent('Yo (hablar)');
 	});
 
 	test('should correctly guess', async () => {
@@ -26,6 +26,7 @@ describe('Guess Component', () => {
 		let done: boolean = false;
 		render(Guess, {
 			infinitive: 'hablar',
+			english: '',
 			tense: 'Presente de Indicativo',
 			pronoun: 'Yo',
 			answer: 'hablo',
@@ -41,15 +42,15 @@ describe('Guess Component', () => {
 		expect(input.value).toBe('hablo');
 
 		let button = screen.getByRole('button');
-		expect(button).toHaveTextContent('Check');
+		expect(button).toHaveTextContent('Check Answer');
 
 		await fireEvent.click(button);
 
-		const feedback = screen.getByText('Correct! 🎉');
+		const feedback = screen.getByText('Correct!');
 		expect(feedback).toBeInTheDocument();
 
 		button = screen.getByRole('button');
-		expect(button).toHaveTextContent('Next');
+		expect(button).toHaveTextContent('Next Question');
 
 		await fireEvent.click(button);
 
@@ -62,6 +63,7 @@ describe('Guess Component', () => {
 		let done: boolean = false;
 		render(Guess, {
 			infinitive: 'hablar',
+			english: '',
 			tense: 'Presente de Indicativo',
 			pronoun: 'Yo',
 			answer: 'hablo',
@@ -77,15 +79,15 @@ describe('Guess Component', () => {
 		expect(input.value).toBe('incorrect');
 
 		let button = screen.getByRole('button');
-		expect(button).toHaveTextContent('Check');
+		expect(button).toHaveTextContent('Check Answer');
 
 		await fireEvent.click(button);
 
-		const feedback = screen.getByText('Unlucky, the answer is');
+		const feedback = screen.getByText('Not quite right');
 		expect(feedback).toBeInTheDocument();
 
 		button = screen.getByRole('button');
-		expect(button).toHaveTextContent('Next');
+		expect(button).toHaveTextContent('Next Question');
 
 		await fireEvent.click(button);
 

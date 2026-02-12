@@ -3,13 +3,9 @@
 	import './styles.css';
 </script>
 
-<div class="font-mono">
+<div class="min-h-screen gradient-bg font-sans" data-theme="conjugation">
 	<Header />
-	<div class="h-screen flex items-center justify-center">
-		<div class="h-3/4">
-			<main>
-				<slot />
-			</main>
-		</div>
-	</div>
+	<main class="container mx-auto px-4 py-8">
+		<slot />
+	</main>
 </div>

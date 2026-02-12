@@ -1,4 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @tailwind typography;
+
+@layer components {
+	.gradient-bg {
+		@apply bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10;
+	}
+
+	.gradient-text {
+		@apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+	}
+
+	.card-colorful {
+		@apply bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border-2 border-transparent hover:border-primary/30;
+	}
+
+	.btn-gradient {
+		@apply bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-full px-8 py-3 hover:scale-105 transition-transform duration-200 shadow-lg;
+	}
+
+	.input-playful {
+		@apply input input-bordered border-2 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 rounded-2xl text-lg transition-all duration-200;
+	}
+}
